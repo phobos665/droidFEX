@@ -12,9 +12,11 @@
 #endif
 
 namespace FEXCore::CPU {
-static constexpr size_t INITIAL_CODE_SIZE = 1024 * 1024 * 16;
 // We don't want to move above 128MB atm because that means we will have to encode longer jumps
 static constexpr size_t MAX_CODE_SIZE = 1024 * 1024 * 128;
+// droidFEX: Start at the maximum. Growing the buffer discards every compiled block in every thread, which games hit
+// up to three times early on as recompile stutter. Untouched pages of the buffer cost address space, not memory.
+static constexpr size_t INITIAL_CODE_SIZE = MAX_CODE_SIZE;
 
 CodeBuffer::CodeBuffer(size_t Size, bool ShouldBeNamed)
   : AllocatedSize(Size) {
