@@ -220,8 +220,10 @@
         "DestSize": "OpSize::i32Bit"
       },
 
-      "SetRoundingMode GPR:$RoundMode, i1:$SetDAZ, GPR:$MXCSR": {
-        "Desc": ["Sets the current rounding mode options for the thread"
+      "SetRoundingMode GPR:$RoundMode, i1:$SetFTZ, i1:$SetDAZ, GPR:$MXCSR": {
+        "Desc": ["Sets the current rounding mode options for the thread",
+                 "RoundMode[1:0] is the x86 rounding mode, RoundMode[2] is FTZ and is only applied if SetFTZ is set.",
+                 "x87 control word updates leave SetFTZ clear so they don't clobber the SSE flush-to-zero state."
                 ],
         "HasSideEffects": true
       },

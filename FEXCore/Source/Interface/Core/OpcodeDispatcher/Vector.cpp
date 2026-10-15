@@ -3298,7 +3298,7 @@ void OpDispatchBuilder::RestoreMXCSRState(Ref MXCSR) {
   _StoreContextGPR(OpSize::i32Bit, MXCSR, offsetof(FEXCore::Core::CPUState, mxcsr));
   // We only support the rounding mode and FTZ bit being set
   Ref RoundingMode = _Bfe(OpSize::i32Bit, 3, 13, MXCSR);
-  _SetRoundingMode(RoundingMode, true, MXCSR);
+  _SetRoundingMode(RoundingMode, true, true, MXCSR);
 }
 
 void OpDispatchBuilder::RestoreAVXState(Ref MemBase) {

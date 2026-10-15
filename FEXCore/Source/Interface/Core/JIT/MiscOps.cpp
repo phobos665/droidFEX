@@ -135,9 +135,11 @@ DEF_OP(SetRoundingMode) {
     bfi(ARMEmitter::Size::i64Bit, TMP1, TMP2, 22, 2);
   }
 
-  // Insert the FTZ flag
-  lsr(ARMEmitter::Size::i64Bit, TMP2, Src, 2);
-  bfi(ARMEmitter::Size::i64Bit, TMP1, TMP2, 24, 1);
+  if (Op->SetFTZ) {
+    // Insert the FTZ flag
+    lsr(ARMEmitter::Size::i64Bit, TMP2, Src, 2);
+    bfi(ARMEmitter::Size::i64Bit, TMP1, TMP2, 24, 1);
+  }
 
   if (Op->SetDAZ && HostSupportsAFP) {
     // Extract DAZ from MXCSR and insert to in FPCR.FIZ

@@ -556,7 +556,7 @@ void OpDispatchBuilder::X87FRSTOR(OpcodeArgs) {
     auto roundMask = Constant(3);
     roundingMode = _Lshr(OpSize::i32Bit, roundingMode, roundShift);
     roundingMode = _And(OpSize::i32Bit, roundingMode, roundMask);
-    _SetRoundingMode(roundingMode, false, roundingMode);
+    _SetRoundingMode(roundingMode, false, false, roundingMode);
   }
 
   auto NewFSW = _LoadMemGPR(Size, Mem, Constant(IR::OpSizeToSize(Size) * 1), Size, MemOffsetType::SXTX, 1);
@@ -789,7 +789,7 @@ void OpDispatchBuilder::FNINIT(OpcodeArgs) {
   auto Zero = Constant(0);
 
   if (ReducedPrecisionMode) {
-    _SetRoundingMode(Zero, false, Zero);
+    _SetRoundingMode(Zero, false, false, Zero);
   }
 
   // Init FCW to 0x037F
