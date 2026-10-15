@@ -9,6 +9,7 @@
 #include <FEXCore/Utils/Allocator.h>
 #include <FEXCore/Utils/File.h>
 #include <FEXCore/Utils/FileLoading.h>
+#include <FEXCore/Utils/IntervalList.h>
 #include <FEXCore/Utils/LogManager.h>
 #include <FEXCore/Utils/SignalScopeGuards.h>
 
@@ -46,6 +47,9 @@ public:
 
   bool ParseMessage(const char* Message);
 
+  // Set by the VOLATILERANGE test feature.
+  bool CoverWithVolatileRange {};
+
   InstructionData CompileAndGetStats(FEXCore::Context::Context* CTX, FEXCore::Core::InternalThreadState* Thread, const void* Data,
                                      size_t SizeBytes, int32_t MaxInst = -1) {
     if (SizeBytes > MAX_CODE_SIZE) {
@@ -56,6 +60,13 @@ public:
       auto CodeInvalidationlk = FEXCore::GuardSignalDeferringSection(CTX->GetCodeInvalidationMutex(), Thread);
       CTX->InvalidateCodeBuffersCodeRange(reinterpret_cast<uint64_t>(CodeStart), MAX_CODE_SIZE);
       CTX->InvalidateThreadCachedCodeRange(Thread, reinterpret_cast<uint64_t>(CodeStart), MAX_CODE_SIZE);
+
+      if (CoverWithVolatileRange) {
+        // Volatile metadata that covers the test code but lists no volatile instructions, so TSO must be relaxed for all of it.
+        FEXCore::IntervalList<uint64_t> ValidRange;
+        ValidRange.Insert({reinterpret_cast<uint64_t>(CodeStart), reinterpret_cast<uint64_t>(CodeStart) + SizeBytes});
+        CTX->AddForceTSOInformation(ValidRange, {});
+      }
     }
 
     ClearStats();
@@ -556,6 +567,8 @@ int main(int argc, char** argv, char** const envp) {
     FEATURE_MOPS = (1U << 17),
     FEATURE_I8MM = (1U << 18),
     FEATURE_DOTPROD = (1U << 19),
+    // Not a host feature: covers each test with volatile metadata that lists no volatile instructions.
+    FEATURE_VOLATILERANGE = (1U << 20),
   };
 
   uint64_t SVEWidth = 0;
@@ -612,6 +625,8 @@ int main(int argc, char** argv, char** const envp) {
   if (TestHeaderData->EnabledHostFeatures & FEATURE_I8MM) {
     HostFeatureControl |= static_cast<uint64_t>(FEXCore::Config::HostFeatures::ENABLEI8MM);
   }
+  CodeSize::Validation->CoverWithVolatileRange = TestHeaderData->EnabledHostFeatures & FEATURE_VOLATILERANGE;
+
   if (TestHeaderData->EnabledHostFeatures & FEATURE_DOTPROD) {
     HostFeatureControl |= static_cast<uint64_t>(FEXCore::Config::HostFeatures::ENABLEDOTPROD);
   }

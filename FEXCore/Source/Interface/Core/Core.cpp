@@ -582,10 +582,11 @@ ContextImpl::GenerateIR(FEXCore::Core::InternalThreadState* Thread, uint64_t Gue
       bool BlockInForceTSOValidRange = false;
       auto InstForceTSOIt = ForceTSOInstructions.end();
       if (ForceTSOValidRanges.Contains({Block.Entry, Block.Entry + Block.Size})) {
-        if (auto It = ForceTSOInstructions.lower_bound(Block.Entry); It != ForceTSOInstructions.end() && *It < Block.Entry + Block.Size) {
-          InstForceTSOIt = It;
-          BlockInForceTSOValidRange = true;
-        }
+        // Inside a range covered by volatile metadata only the listed instructions need TSO, so every other access is
+        // relaxed. That includes blocks with no listed instructions at all, which is the common case and is also how a
+        // module-wide ExtendedVolatileMetadata entry (a range with no instructions) disables TSO.
+        BlockInForceTSOValidRange = true;
+        InstForceTSOIt = ForceTSOInstructions.lower_bound(Block.Entry);
       }
 
       // Set the block entry point
