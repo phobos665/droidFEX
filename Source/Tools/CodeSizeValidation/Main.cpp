@@ -569,6 +569,8 @@ int main(int argc, char** argv, char** const envp) {
     FEATURE_DOTPROD = (1U << 19),
     // Not a host feature: covers each test with volatile metadata that lists no volatile instructions.
     FEATURE_VOLATILERANGE = (1U << 20),
+    // Not a host feature: models the LDAPUR erratum workaround (LRCPC2 loads off, LRCPC2 stores on).
+    FEATURE_LDAPURERRATUM = (1U << 21),
   };
 
   uint64_t SVEWidth = 0;
@@ -712,6 +714,9 @@ int main(int argc, char** argv, char** const envp) {
   {
     auto HostFeatures = FEX::FetchHostFeatures();
     HostFeatures.IsInstCountCI = true;
+    if (TestHeaderData->EnabledHostFeatures & FEATURE_LDAPURERRATUM) {
+      HostFeatures.SupportsTSOImm9 = false;
+    }
     CTX = FEXCore::Context::Context::CreateNewContext(HostFeatures);
   }
 

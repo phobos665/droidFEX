@@ -798,6 +798,8 @@ def print_ir_allocator_helpers():
                                 P += ["OffsetType", "OffsetScale"]
                             elif inline == "Memtso":
                                 P += ["OffsetType", "OffsetScale", "true /* TSO */"]
+                                if op.Name.startswith("Store"):
+                                    P += ["true /* Store */"]
                                 inline = "Mem"
 
                             output_file.write(f"\t\t{arg.Name} = Inline{inline}({', '.join(P)});\n")

@@ -358,6 +358,7 @@ static void OverrideFeatures(FEXCore::HostFeatures* Features, uint64_t ForceSVEW
   ENABLE_DISABLE_OPTION(SupportsAFP, AFP, AFP);
   ENABLE_DISABLE_OPTION(SupportsRCPC, LRCPC, LRCPC);
   ENABLE_DISABLE_OPTION(SupportsTSOImm9, LRCPC2, LRCPC2);
+  ENABLE_DISABLE_OPTION(SupportsTSOStoreImm9, LRCPC2Store, LRCPC2);
   ENABLE_DISABLE_OPTION(SupportsCSSC, CSSC, CSSC);
   ENABLE_DISABLE_OPTION(SupportsPMULL_128Bit, PMULL128, PMULL128);
   ENABLE_DISABLE_OPTION(SupportsRAND, RNG, RNG);
@@ -464,6 +465,7 @@ static void HandleErrata(FEXCore::HostFeatures* HostFeatures, uint64_t MIDR) {
                          (Core_MIDR_PartNum == PartNum_C1Ultra) || (Core_MIDR_PartNum == PartNum_C1Premium));
 
     if (IgnoreLRCPC2) {
+      // Only LDAPUR is affected, STLUR stays enabled through SupportsTSOStoreImm9.
       HostFeatures->SupportsTSOImm9 = false;
       break;
     }
@@ -496,6 +498,7 @@ void FetchHostFeatures(FEX::CPUFeatures& Features, FEXCore::HostFeatures& HostFe
   HostFeatures.SupportsAFP = Features.Supports(CPUFeatures::Feature::AFP);
   HostFeatures.SupportsRCPC = Features.Supports(CPUFeatures::Feature::LRCPC);
   HostFeatures.SupportsTSOImm9 = Features.Supports(CPUFeatures::Feature::LRCPC2);
+  HostFeatures.SupportsTSOStoreImm9 = Features.Supports(CPUFeatures::Feature::LRCPC2);
   HostFeatures.SupportsPMULL_128Bit = Features.Supports(CPUFeatures::Feature::PMULL);
   HostFeatures.SupportsCSSC = Features.Supports(CPUFeatures::Feature::CSSC);
   HostFeatures.SupportsFCMA = Features.Supports(CPUFeatures::Feature::FCMA);
@@ -585,6 +588,7 @@ void FetchHostFeatures(FEX::CPUFeatures& Features, FEXCore::HostFeatures& HostFe
   HostFeatures.SupportsRAND = Feature.Feat_rand;
   HostFeatures.SupportsRCPC = true;
   HostFeatures.SupportsTSOImm9 = true;
+  HostFeatures.SupportsTSOStoreImm9 = true;
   HostFeatures.SupportsAVX = Feature.Feat_avx;
   HostFeatures.SupportsSHA = Feature.Feat_sha;
   HostFeatures.SupportsPMULL_128Bit = Feature.Feat_pclmulqdq;

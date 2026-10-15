@@ -4650,7 +4650,7 @@ void OpDispatchBuilder::StoreResult(RegClass Class, X86Tables::DecodedOp Op, Ref
 }
 
 OpDispatchBuilder::OpDispatchBuilder(FEXCore::Context::ContextImpl* ctx, FEXCore::Core::InternalThreadState* Thread)
-  : IREmitter {ctx->OpDispatcherAllocator, ctx->HostFeatures.SupportsTSOImm9 != 0}
+  : IREmitter {ctx->OpDispatcherAllocator, ctx->HostFeatures.SupportsTSOImm9 != 0, ctx->HostFeatures.SupportsTSOStoreImm9 != 0}
   , CTX {ctx}
   , Thread {Thread} {
   if (CTX->HostFeatures.SupportsAVX && CTX->HostFeatures.SupportsSVE256) {

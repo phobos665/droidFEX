@@ -63,6 +63,7 @@ class HostFeatures(Flag) :
     FEATURE_I8MM   = (1 << 18)
     FEATURE_DOTPROD = (1 << 19)
     FEATURE_VOLATILERANGE = (1 << 20)
+    FEATURE_LDAPURERRATUM = (1 << 21)
 
 HostFeaturesLookup = {
     "SVE128"  : HostFeatures.FEATURE_SVE128,
@@ -86,6 +87,7 @@ HostFeaturesLookup = {
     "I8MM"    : HostFeatures.FEATURE_I8MM,
     "DOTPROD" : HostFeatures.FEATURE_DOTPROD,
     "VOLATILERANGE" : HostFeatures.FEATURE_VOLATILERANGE,
+    "LDAPURERRATUM" : HostFeatures.FEATURE_LDAPURERRATUM,
 }
 
 def GetHostFeatures(data):

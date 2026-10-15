@@ -2586,7 +2586,7 @@ private:
 
   Ref _StoreMemAutoTSO(RegClass Class, OpSize Size, const AddressMode& A, Ref Value, OpSize Align = OpSize::i8Bit) {
     const bool AtomicTSO = IsTSOEnabled(Class) && !A.NonTSO;
-    const auto B = SelectAddressMode(this, A, GetGPROpSize(), CTX->HostFeatures.SupportsTSOImm9, AtomicTSO, Class != RegClass::GPR, Size);
+    const auto B = SelectAddressMode(this, A, GetGPROpSize(), CTX->HostFeatures.SupportsTSOStoreImm9, AtomicTSO, Class != RegClass::GPR, Size);
 
     if (AtomicTSO) {
       return _StoreMemTSO(Class, Size, Value, B.Base, B.Index, Align, B.IndexType, B.IndexScale);

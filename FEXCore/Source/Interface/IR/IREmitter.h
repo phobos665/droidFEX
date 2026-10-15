@@ -19,9 +19,10 @@ namespace FEXCore::IR {
 
 class IREmitter {
 public:
-  IREmitter(FEXCore::Utils::IntrusivePooledAllocator& ThreadAllocator, bool SupportsTSOImm9)
+  IREmitter(FEXCore::Utils::IntrusivePooledAllocator& ThreadAllocator, bool SupportsTSOImm9, bool SupportsTSOStoreImm9)
     : DualListData {ThreadAllocator, 8 * 1024 * 1024}
-    , SupportsTSOImm9(SupportsTSOImm9) {}
+    , SupportsTSOImm9(SupportsTSOImm9)
+    , SupportsTSOStoreImm9(SupportsTSOStoreImm9) {}
 
   virtual ~IREmitter() = default;
 
@@ -52,7 +53,7 @@ public:
   RegClass WalkFindRegClass(Ref Node) const;
 
   // These inlining helpers are used by IRDefines.inc so define first.
-  Ref InlineMem(OpSize Size, Ref Offset, MemOffsetType OffsetType, uint8_t& OffsetScale, bool TSO = false) {
+  Ref InlineMem(OpSize Size, Ref Offset, MemOffsetType OffsetType, uint8_t& OffsetScale, bool TSO = false, bool Store = false) {
     uint64_t Imm {};
     if (OffsetType != MemOffsetType::SXTX || !IsValueConstant(WrapNode(Offset), &Imm)) {
       return Offset;
@@ -63,7 +64,7 @@ public:
 
     // Signed immediate unscaled 9-bit range for both regular and LRCPC2 ops.
     bool IsSIMM9 = ((int64_t)Imm >= -256) && ((int64_t)Imm <= 255);
-    IsSIMM9 &= (SupportsTSOImm9 || !TSO);
+    IsSIMM9 &= (!TSO || (Store ? SupportsTSOStoreImm9 : SupportsTSOImm9));
 
     // Extended offsets for regular loadstore only.
     LOGMAN_THROW_A_FMT(Size >= IR::OpSize::i8Bit && Size <= IR::OpSize::i256Bit, "Must be sized");
@@ -524,6 +525,7 @@ protected:
   fextl::vector<Ref> CodeBlocks;
   uint64_t Entry {};
   bool SupportsTSOImm9 {};
+  bool SupportsTSOStoreImm9 {};
 
 private:
   void ResetWorkingList();

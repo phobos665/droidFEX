@@ -1795,12 +1795,12 @@ DEF_OP(StoreMemTSO) {
   const auto MemReg = GetReg(Op->Addr);
 
   if (Op->Class == IR::RegClass::GPR) {
-    LOGMAN_THROW_A_FMT(Op->Offset.IsInvalid() || CTX->HostFeatures.SupportsTSOImm9, "unexpected offset");
+    LOGMAN_THROW_A_FMT(Op->Offset.IsInvalid() || CTX->HostFeatures.SupportsTSOStoreImm9, "unexpected offset");
     LOGMAN_THROW_A_FMT(Op->OffsetScale == 1, "unexpected offset scale");
     LOGMAN_THROW_A_FMT(Op->OffsetType == IR::MemOffsetType::SXTX, "unexpected offset type");
   }
 
-  if (CTX->HostFeatures.SupportsTSOImm9 && Op->Class == IR::RegClass::GPR) {
+  if (CTX->HostFeatures.SupportsTSOStoreImm9 && Op->Class == IR::RegClass::GPR) {
     const auto Src = GetZeroableReg(Op->Value);
     uint64_t Offset = 0;
     if (!Op->Offset.IsInvalid()) {

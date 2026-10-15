@@ -83,9 +83,12 @@ struct HostFeatures {
   uint32_t PreferZVAForVZero           : 1 {};
   uint32_t SupportsAFP                 : 1 {};
   uint32_t SupportsFloatExceptions     : 1 {};
+  // STLUR for TSO stores. Tracked apart from SupportsTSOImm9 (LDAPUR) since the LDAPUR performance erratum on some
+  // Cortex cores doesn't affect STLUR.
+  uint32_t SupportsTSOStoreImm9        : 1 {};
   // Flag if this is InstCountCI
   uint32_t IsInstCountCI : 1 {};
-  uint32_t pad           : 26 {};
+  uint32_t pad           : 25 {};
 
   // This affects codegen, but it isn't machine state
   HostTypeEnum HostType {};
