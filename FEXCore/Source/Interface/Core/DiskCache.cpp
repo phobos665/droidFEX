@@ -425,7 +425,9 @@ namespace DiskCache {
 
     fextl::string BasePath = BasePathOverride();
     if (BasePath.empty()) {
-      BasePath = FEXCore::Config::GetCacheDirectory() + "DiskCache/";
+      // droidFEX bumps FormatVersion independently of upstream, so the same version number can mean different codegen.
+      // Keep our entries in their own directory so they never mix with (or prune) caches from upstream FEX builds.
+      BasePath = FEXCore::Config::GetCacheDirectory() + "DiskCache-droidFEX/";
     }
 
     const auto MachineBucketHashAsString = fextl::fmt::format("{:016x}", MachineBucketHash);
