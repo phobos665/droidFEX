@@ -69,6 +69,15 @@ private:
   const bool HostSupportsAVX256 {};
   const bool HostSupportsRPRES {};
   const bool HostSupportsAFP {};
+  const bool EmitTSOBackpatchPlaceholders {};
+
+  // Reserves the slot that the unaligned access handler backpatches into a half-barrier.
+  // Without half-barrier TSO the handler backpatches to a plain load or store and never uses the slot.
+  void TSOBackpatchPlaceholder() {
+    if (EmitTSOBackpatchPlaceholders) {
+      nop();
+    }
+  }
 
   struct RestartOptions {
     enum class Control : uint64_t {

@@ -86,6 +86,11 @@ foreach(ASM_SRC ${ASM_SOURCES})
       list(APPEND FEX_ARGS_LIST "FEX_SMCCHECKS=full")
     endif()
 
+    if (TEST_NAME MATCHES "_TSO\\.asm$")
+      # These tests exercise TSO emulation and enable it through their own config.
+      list(REMOVE_ITEM FEX_ARGS_LIST "FEX_TSOENABLED=0")
+    endif()
+
     add_test(NAME ${TEST_NAME}
       COMMAND ${PYTHON_TEST_RUNNER} "${CMAKE_SOURCE_DIR}/Scripts/testharness_runner.py"
       "${CMAKE_SOURCE_DIR}/unittests/ASM/Known_Failures"

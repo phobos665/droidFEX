@@ -796,7 +796,7 @@ DEF_OP(LoadMemTSO) {
       default: LOGMAN_MSG_A_FMT("Unhandled LoadMemTSO size: {}", OpSize); break;
       }
       // Half-barrier once back-patched.
-      nop();
+      TSOBackpatchPlaceholder();
     }
   } else if (CTX->HostFeatures.SupportsRCPC && Op->Class == IR::RegClass::GPR) {
     const auto Dst = GetReg(Node);
@@ -811,7 +811,7 @@ DEF_OP(LoadMemTSO) {
       default: LOGMAN_MSG_A_FMT("Unhandled LoadMemTSO size: {}", OpSize); break;
       }
       // Half-barrier once back-patched.
-      nop();
+      TSOBackpatchPlaceholder();
     }
   } else if (Op->Class == IR::RegClass::GPR) {
     const auto Dst = GetReg(Node);
@@ -826,7 +826,7 @@ DEF_OP(LoadMemTSO) {
       default: LOGMAN_MSG_A_FMT("Unhandled LoadMemTSO size: {}", OpSize); break;
       }
       // Half-barrier once back-patched.
-      nop();
+      TSOBackpatchPlaceholder();
     }
   } else {
     const auto Dst = GetVReg(Node);
@@ -1813,7 +1813,7 @@ DEF_OP(StoreMemTSO) {
       stlurb(Src, MemReg, Offset);
     } else {
       // Half-barrier once back-patched.
-      nop();
+      TSOBackpatchPlaceholder();
       switch (OpSize) {
       case IR::OpSize::i16Bit: stlurh(Src, MemReg, Offset); break;
       case IR::OpSize::i32Bit: stlur(Src.W(), MemReg, Offset); break;
@@ -1829,7 +1829,7 @@ DEF_OP(StoreMemTSO) {
       stlrb(Src, MemReg);
     } else {
       // Half-barrier once back-patched.
-      nop();
+      TSOBackpatchPlaceholder();
       switch (OpSize) {
       case IR::OpSize::i16Bit: stlrh(Src, MemReg); break;
       case IR::OpSize::i32Bit: stlr(Src.W(), MemReg); break;
@@ -1916,7 +1916,7 @@ DEF_OP(MemSet) {
       // 8bit load is always aligned to natural alignment
       stlrb(Value.W(), TMP2);
     } else {
-      nop();
+      TSOBackpatchPlaceholder();
       switch (OpSize) {
       case 2: stlrh(Value.W(), TMP2); break;
       case 4: stlr(Value.W(), TMP2); break;
@@ -2181,8 +2181,8 @@ DEF_OP(MemCpy) {
         }
 
         // Placeholders for backpatching barriers (one per load/store)
-        nop();
-        nop();
+        TSOBackpatchPlaceholder();
+        TSOBackpatchPlaceholder();
 
         switch (OpSize) {
         case 2: stlrh(TMP4.W(), TMP2); break;
@@ -2205,8 +2205,8 @@ DEF_OP(MemCpy) {
         }
 
         // Placeholders for backpatching barriers (one per load/store)
-        nop();
-        nop();
+        TSOBackpatchPlaceholder();
+        TSOBackpatchPlaceholder();
 
         switch (OpSize) {
         case 2: stlrh(TMP4.W(), TMP2); break;

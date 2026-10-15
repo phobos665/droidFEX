@@ -2124,9 +2124,13 @@ std::optional<int32_t> HandleUnalignedAccess(FEXCore::Core::InternalThreadState*
     STR |= Size << 30;
     STR |= AddrReg << 5;
     STR |= DataReg;
-    if (HandleType != UnalignedHandlerType::NonAtomic) {
-      std::atomic_ref<uint32_t>(PC[-1]).store(DMB, std::memory_order_release); // Back-patch the half-barrier.
+    if (HandleType == UnalignedHandlerType::NonAtomic) {
+      // The JIT doesn't reserve a barrier slot without half-barriers, so PC[-1] is unrelated code. Rerun just the store.
+      std::atomic_ref<uint32_t>(PC[0]).store(STR, std::memory_order_release);
+      ClearICache(&PC[0], 4);
+      return 0;
     }
+    std::atomic_ref<uint32_t>(PC[-1]).store(DMB, std::memory_order_release); // Back-patch the half-barrier.
     std::atomic_ref<uint32_t>(PC[0]).store(STR, std::memory_order_release);
     ClearICache(&PC[-1], 8);
     // Back up one instruction and have another go
@@ -2152,9 +2156,13 @@ std::optional<int32_t> HandleUnalignedAccess(FEXCore::Core::InternalThreadState*
     STUR |= AddrReg << 5;
     STUR |= DataReg;
     STUR |= Instr & (0b1'1111'1111 << 12);
-    if (HandleType != UnalignedHandlerType::NonAtomic) {
-      std::atomic_ref<uint32_t>(PC[-1]).store(DMB, std::memory_order_release); // Back-patch the half-barrier.
+    if (HandleType == UnalignedHandlerType::NonAtomic) {
+      // The JIT doesn't reserve a barrier slot without half-barriers, so PC[-1] is unrelated code. Rerun just the store.
+      std::atomic_ref<uint32_t>(PC[0]).store(STUR, std::memory_order_release);
+      ClearICache(&PC[0], 4);
+      return 0;
     }
+    std::atomic_ref<uint32_t>(PC[-1]).store(DMB, std::memory_order_release); // Back-patch the half-barrier.
     std::atomic_ref<uint32_t>(PC[0]).store(STUR, std::memory_order_release);
 
     ClearICache(&PC[-1], 8);
